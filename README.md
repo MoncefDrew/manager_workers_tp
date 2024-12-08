@@ -19,7 +19,7 @@ This program demonstrates inter-process communication (IPC) using message queues
 
 1. Clone the repository:
     ```bash
-    git clone https://github.com/your-username/manager-worker-sum.git
+    git clone https://github.com/MoncefDrew/manager_workers_tp.git
     cd manager-worker-sum
     ```
 
@@ -32,6 +32,8 @@ This program demonstrates inter-process communication (IPC) using message queues
     ```bash
     ./sum_program
     ```
+    btw yall can run it here :
+   https://www.onlinegdb.com/online_c_compiler
 
 ## Example Output
 
