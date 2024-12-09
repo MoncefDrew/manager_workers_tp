@@ -1,7 +1,7 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <signal.h>
+#include <stdio.h> 
+#include <stdlib.h> 
+#include <unistd.h> 
+#include <signal.h> 
 #include <sys/ipc.h>
 #include <sys/msg.h>
 #include <sys/wait.h>
@@ -23,18 +23,11 @@ int total_sum = 0;
 int num_workers;
 int worker_pipes[MAX_WORKERS][2];
 pid_t worker_pids[MAX_WORKERS];
-volatile int results_received = 0; // Counter for SIGUSR2 signals received
 
-// signal handler for SIGUSR1 (used by workers to start processing)
+// signal handler for SIGUSR1
 void signal_handler(int signo)
 {
     // do nothing, just wake up the process
-}
-
-// signal handler for SIGUSR2 (used by workers to notify manager)
-void sigusr2_handler(int signo)
-{
-    results_received++;
 }
 
 // worker process function
@@ -57,13 +50,13 @@ void worker(int pipe_fd, int msgid, int worker_id)
 
     // compute partial sum
     int partial_sum = 0;
-    printf("The list of numbers for worker number %d is: [", worker_id);
+    printf("the list of numbers for worker number %d is: [", worker_id);
     for (int i = 0; i < msg.count; i++)
     {
         printf("%d,", msg.numbers[i]);
         partial_sum += msg.numbers[i];
     }
-    printf("], the partial sum is %d \n", partial_sum);
+    printf("] ,the partial sum is %d \n", partial_sum);
 
     // send the partial sum back to the manager
     if (write(pipe_fd, &partial_sum, sizeof(partial_sum)) == -1)
@@ -71,18 +64,12 @@ void worker(int pipe_fd, int msgid, int worker_id)
         perror("write");
         exit(EXIT_FAILURE);
     }
-
-    // notify the manager that the worker has finished
-    kill(getppid(), SIGUSR2);
-
-    // terminate the worker process
-    _exit(EXIT_SUCCESS);
+    exit(0);
 }
 
 int main()
 {
-    while (1)
-    { // input number of workers
+    // input number of workers
         printf("Enter number of workers: ");
         scanf("%d", &num_workers);
 
@@ -113,9 +100,6 @@ int main()
             perror("msgget");
             return EXIT_FAILURE;
         }
-
-        // install SIGUSR2 handler in the manager
-        signal(SIGUSR2, sigusr2_handler);
 
         // create worker processes
         for (int i = 0; i < num_workers; i++)
@@ -171,14 +155,7 @@ int main()
             usleep(1000); // add slight delay to ensure proper signaling
         }
 
-        // Wait for results from all workers using results_received
-        while (results_received < num_workers)
-        {
-            // Use a small delay to avoid a busy-wait loop
-            usleep(1000);
-        }
-
-        // Collect results from workers
+        // collect results from workers
         for (int i = 0; i < num_workers; i++)
         {
             int partial_sum = 0;
@@ -198,13 +175,13 @@ int main()
 
         // display the total sum
         printf("Total sum: %d\n", total_sum);
-        printf("The list delivered from the manager: [");
+        printf("the list delievered from the manager :[");
 
         for (int l = 0; l < count; l++)
         {
             printf("%d,", numbers[l]);
         }
-        printf("]\n");
+        printf("]");
 
         // cleanup
         if (msgctl(msgid, IPC_RMID, NULL) == -1)
@@ -212,6 +189,6 @@ int main()
             perror("msgctl");
             return EXIT_FAILURE;
         }
-    }
+    
     return 0;
 }
